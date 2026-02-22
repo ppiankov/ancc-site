@@ -61,6 +61,10 @@
 
   <p>ANCC is a pattern for building CLI tools that agents can discover, install, configure, and compose. "Agent" here means any autonomous process with shell access — an LLM in a loop, a CI pipeline, a cron job. When a tool is deterministic and its interface is documented, the agent doesn't need to guess. It reads the spec, runs the command, parses the output.</p>
 
+  <pre><code>brew install ppiankov/tap/noisepan
+noisepan init
+noisepan pull --format json | jq '.items[0]'</code></pre>
+
   <h2>Tools</h2>
   <p class="section-intro">Tools following this pattern.</p>
 
@@ -81,7 +85,7 @@
 
   <div class="tool">
     <a class="tool-name" href="https://github.com/ppiankov/ancc">ancc</a>
-    <p class="tool-desc">ANCC validator. Check if a repo follows the convention.</p>
+    <p class="tool-desc">Validate if a repo follows ANCC. <span class="inline-code">brew install ppiankov/tap/ancc && ancc validate .</span></p>
   </div>
 
   <h2>Observed in practice</h2>
@@ -122,12 +126,12 @@
 
   <div class="requirement">
     <p class="requirement-name">1. Single binary, zero runtime deps</p>
-    <p class="requirement-desc">Ship one binary. Install means copy a file. Homebrew, <span class="inline-code">curl | tar</span>, or <span class="inline-code">go install</span>. An agent that can run shell commands can install it.</p>
+    <p class="requirement-desc">Ship as a single binary artifact. Installation is a single step — <span class="inline-code">brew install</span>, <span class="inline-code">curl | tar</span>, or <span class="inline-code">go install</span>. No runtimes, no containers, no package managers beyond the binary itself.</p>
   </div>
 
   <div class="requirement">
     <p class="requirement-name">2. Deterministic behavior</p>
-    <p class="requirement-desc">Same input, same output. No ambient state, no implicit config. Running <span class="inline-code">tool analyze input.txt --format json</span> twice produces identical output unless the input changes. An agent can verify its work by running the command again.</p>
+    <p class="requirement-desc">Deterministic given the same inputs and environment. Running <span class="inline-code">tool analyze input.txt --format json</span> twice produces identical output unless the input changes. Any external API calls must produce stable, documented output mapping. An agent can verify its work by running the command again.</p>
   </div>
 
   <div class="requirement">
