@@ -59,12 +59,30 @@
   <h1>ANCC</h1>
   <p class="meta">Agent-Native CLI Convention. Build tools agents can use without plugins.</p>
 
-  <p>ANCC is a pattern for building CLI tools that AI agents can discover, install, configure, and compose. When a tool is deterministic and its interface is documented, agents don't need to guess. They read the spec, run the command, parse the output.</p>
+  <p>ANCC is a pattern for building CLI tools that agents can discover, install, configure, and compose. "Agent" here means any autonomous process with shell access — an LLM in a loop, a CI pipeline, a cron job. When a tool is deterministic and its interface is documented, the agent doesn't need to guess. It reads the spec, runs the command, parses the output.</p>
+
+  <h2>Tools</h2>
+  <p class="section-intro">Tools following this pattern.</p>
+
+  <div class="tool">
+    <a class="tool-name" href="https://github.com/ppiankov/chainwatch">chainwatch</a>
+    <p class="tool-desc">AI agent execution control plane. Watch, contain, and audit autonomous agent runs.</p>
+  </div>
+
+  <div class="tool">
+    <a class="tool-name" href="https://github.com/ppiankov/noisepan">noisepan</a>
+    <p class="tool-desc">Signal extractor for noisy information streams.</p>
+  </div>
+
+  <div class="tool">
+    <a class="tool-name" href="https://github.com/ppiankov/entropia">entropia</a>
+    <p class="tool-desc">Source credibility verifier.</p>
+  </div>
 
   <h2>Observed in practice</h2>
   <p class="section-intro">An autonomous agent encountered these tools and installed them without a plugin.</p>
 
-  <p>Given a goal and access to a shell, an agent discovered CLI tools from conversation context. It installed them via Homebrew, ran <span class="inline-code">init</span> to generate config files, composed multiple tools into a pipeline with JSON output piped between stages, and set up cron for recurring execution. No plugin framework. No SDK. No registry. Just CLI tools and SKILL.md files.</p>
+  <p>Given a goal and access to a shell, an agent discovered CLI tools from conversation context. It ran <span class="inline-code">brew install ppiankov/tap/noisepan</span>, then <span class="inline-code">noisepan init</span> to generate a config file, edited the config for its task, and executed <span class="inline-code">noisepan pull --format json</span>. It piped the output into other tools, composed a pipeline, and set up cron for recurring execution. No plugin framework. No SDK. No registry.</p>
 
   <h2>Why it matters</h2>
   <p class="section-intro">Concrete friction reduction.</p>
@@ -102,7 +120,7 @@
 
   <div class="requirement">
     <p class="requirement-name">2. Deterministic behavior</p>
-    <p class="requirement-desc">Same input, same output. No ambient state, no implicit config. An agent can verify its work by running the command again.</p>
+    <p class="requirement-desc">Same input, same output. No ambient state, no implicit config. Running <span class="inline-code">tool analyze input.txt --format json</span> twice produces identical output unless the input changes. An agent can verify its work by running the command again.</p>
   </div>
 
   <div class="requirement">
@@ -112,7 +130,7 @@
 
   <div class="requirement">
     <p class="requirement-name">4. One bounded job</p>
-    <p class="requirement-desc">Each tool does one thing. It runs, produces output, and exits. No daemons, no watchers, no interactive modes.</p>
+    <p class="requirement-desc">Each tool does one thing. It runs, produces output, and exits. No interactive modes. If a service or daemon exists, it is controlled through bounded CLI commands — the ANCC interface is always a single invocation with a defined exit.</p>
   </div>
 
   <div class="requirement">
@@ -180,24 +198,6 @@ tool-name analyze --format json | jq '.status'
 # Filter failing items
 tool-name analyze --format json | jq '.details[] | select(.result == "fail")'
 ```</code></pre>
-
-  <h2>Tools</h2>
-  <p class="section-intro">Tools following this pattern.</p>
-
-  <div class="tool">
-    <a class="tool-name" href="https://github.com/ppiankov/chainwatch">chainwatch</a>
-    <p class="tool-desc">AI agent execution control plane. Watch, contain, and audit autonomous agent runs.</p>
-  </div>
-
-  <div class="tool">
-    <a class="tool-name" href="https://github.com/ppiankov/noisepan">noisepan</a>
-    <p class="tool-desc">Signal extractor for noisy information streams.</p>
-  </div>
-
-  <div class="tool">
-    <a class="tool-name" href="https://github.com/ppiankov/entropia">entropia</a>
-    <p class="tool-desc">Source credibility verifier.</p>
-  </div>
 
   <h2>Principle</h2>
 
