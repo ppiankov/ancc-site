@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ANCC — Agent-Native CLI Convention</title>
+  <meta name="description" content="Build CLI tools agents can use without plugins, SDKs, or registries.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0E1116;
+      color: #CDD6E0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.7;
+      padding: 2rem 1.5rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.1rem; font-weight: 600; margin-top: 2.5rem; margin-bottom: 0.5rem; }
+    p { margin-bottom: 1rem; color: #CDD6E0; }
+    a { color: #CDD6E0; }
+    .meta { color: #7C8590; font-size: 0.85rem; margin-bottom: 2rem; }
+    .section-intro { color: #7C8590; font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .requirement { margin-bottom: 1.5rem; }
+    .requirement-name { font-weight: 600; }
+    .requirement-desc { color: #7C8590; font-size: 0.9rem; margin-top: 0.2rem; }
+    .tool { margin-bottom: 1.5rem; }
+    .tool-name { font-weight: 600; text-decoration: none; border-bottom: 1px solid #3B414A; }
+    .tool-name:hover { border-bottom-color: #7C8590; }
+    .tool-desc { color: #7C8590; font-size: 0.9rem; margin-top: 0.2rem; }
+    pre {
+      background: #161B22;
+      border: 1px solid #3B414A;
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      color: #CDD6E0;
+    }
+    code { font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace; font-size: 0.85rem; }
+    .inline-code { background: #161B22; padding: 0.15rem 0.35rem; border-radius: 3px; font-size: 0.82rem; }
+    .links { margin-top: 3rem; color: #7C8590; font-size: 0.9rem; }
+    .links a { color: #7C8590; margin-right: 1.5rem; }
+  </style>
+</head>
+<body>
+
+  <h1>ANCC</h1>
+  <p class="meta">Agent-Native CLI Convention. Build tools agents can use without plugins.</p>
+
+  <h2>Philosophy</h2>
+  <p class="section-intro">A pattern for building CLI tools that AI agents can discover, install, configure, and compose.</p>
+
+  <p>Agents don't need plugins. They don't need SDKs, registries, or tool-calling frameworks. They need well-built Unix tools with predictable behavior and machine-readable output.</p>
+
+  <p>ML compensates for lack of structure. When a tool is deterministic and its interface is documented, agents don't need to guess. They read the spec, run the command, parse the output.</p>
+
+  <p>Build small. Ship small. Compose like pipes. The same tools that work for humans in a terminal work for agents in an autonomous loop.</p>
+
+  <h2>The Convention</h2>
+  <p class="section-intro">Six requirements. A tool that meets all six is agent-native.</p>
+
+  <div class="requirement">
+    <p class="requirement-name">1. Single binary, zero runtime deps</p>
+    <p class="requirement-desc">Ship one binary. No Python virtualenvs, no Node modules, no Docker containers. Install means copy a file. Homebrew, <span class="inline-code">curl | tar</span>, or <span class="inline-code">go install</span>. An agent that can run shell commands can install it.</p>
+  </div>
+
+  <div class="requirement">
+    <p class="requirement-name">2. Deterministic behavior</p>
+    <p class="requirement-desc">Same input, same output. No ambient state, no implicit config, no results that vary between runs. If the tool calls an external API, the mapping from response to output is still deterministic. An agent can verify its work by running the command again.</p>
+  </div>
+
+  <div class="requirement">
+    <p class="requirement-name">3. Structured output</p>
+    <p class="requirement-desc">Support <span class="inline-code">--format json</span> for machine consumption. Human-readable output is the default. JSON output is the agent interface. Every field in the JSON is documented in SKILL.md.</p>
+  </div>
+
+  <div class="requirement">
+    <p class="requirement-name">4. One bounded job</p>
+    <p class="requirement-desc">Each tool does one thing. It runs, produces output, and exits. No daemons, no watchers, no interactive modes. Bounded execution means an agent can reason about what the tool will do before it runs it.</p>
+  </div>
+
+  <div class="requirement">
+    <p class="requirement-name">5. SKILL.md at repo root</p>
+    <p class="requirement-desc">A machine-readable file that tells an agent everything it needs: how to install, what commands exist, what flags they take, what JSON output looks like, and what the tool does not do. This is the contract between the tool and the agent.</p>
+  </div>
+
+  <div class="requirement">
+    <p class="requirement-name">6. Init command</p>
+    <p class="requirement-desc">Running <span class="inline-code">tool init</span> produces a valid config file with sensible defaults. An agent doesn't need to know your config format upfront — it runs init, reads the result, and adjusts from there.</p>
+  </div>
+
+  <h2>SKILL.md</h2>
+  <p class="section-intro">The machine-readable interface contract. Lives at the repo root.</p>
+
+  <p>SKILL.md is what makes a tool discoverable. An agent reads this file to understand what a tool does, how to install it, and how to use it. It replaces plugin manifests, OpenAPI specs, and tool-calling schemas with a single markdown file that humans can read too.</p>
+
+  <p>Key sections:</p>
+
+  <pre><code># tool-name
+
+One-line description of what this tool does.
+
+## Install
+
+```
+brew install user/tap/tool-name
+```
+
+## Commands
+
+### tool-name analyze
+
+Analyzes input and produces a report.
+
+**Flags:**
+- `--format json` — output as JSON (default: human-readable)
+- `--config path` — config file (default: ./tool-name.yaml)
+- `--verbose` — show detailed progress
+
+**JSON output:**
+```json
+{
+  "status": "pass | fail | warn",
+  "score": 0.0-1.0,
+  "details": [{"item": "...", "result": "..."}]
+}
+```
+
+**Exit codes:**
+- 0: success
+- 1: failure (bad input, missing config)
+- 2: partial results (some checks passed)
+
+## What this does NOT do
+
+- Does not modify input files
+- Does not make network requests unless configured
+- Does not require authentication for local operation
+
+## Parsing examples
+
+```bash
+# Get the status
+tool-name analyze --format json | jq '.status'
+
+# Filter failing items
+tool-name analyze --format json | jq '.details[] | select(.result == "fail")'
+```</code></pre>
+
+  <p>The parsing examples matter. They show an agent exactly how to extract specific fields, reducing guesswork to zero.</p>
+
+  <h2>Observed in the wild</h2>
+  <p class="section-intro">What happens when an autonomous agent encounters ANCC tools.</p>
+
+  <p>An autonomous agent, given a goal and access to a shell, discovered CLI tools from conversation context. It installed them via Homebrew, ran <span class="inline-code">init</span> to generate config files, adjusted settings based on the task, composed multiple tools into a pipeline with JSON output piped between stages, and set up cron for recurring execution. No plugin framework. No SDK. No registry. Just CLI tools and SKILL.md files.</p>
+
+  <h2>Tools</h2>
+  <p class="section-intro">ANCC-compliant tools in production.</p>
+
+  <div class="tool">
+    <a class="tool-name" href="https://github.com/ppiankov/chainwatch">chainwatch</a>
+    <p class="tool-desc">AI agent execution control plane. Watch, contain, and audit autonomous agent runs.</p>
+  </div>
+
+  <div class="tool">
+    <a class="tool-name" href="https://github.com/ppiankov/noisepan">noisepan</a>
+    <p class="tool-desc">Signal extractor for noisy information streams.</p>
+  </div>
+
+  <div class="tool">
+    <a class="tool-name" href="https://github.com/ppiankov/entropia">entropia</a>
+    <p class="tool-desc">Source credibility verifier.</p>
+  </div>
+
+  <h2>Principle</h2>
+  <p class="section-intro">The substrate for agents is the substrate that works for humans.</p>
+
+  <p>Tools present evidence and let you decide — mirrors, not oracles. The terminal is the universal interface. It worked before agents, and it works with them. ANCC doesn't invent a new abstraction. It names a pattern that already works and gives tools a way to declare that they follow it.</p>
+
+  <div class="links">
+    <a href="https://github.com/ppiankov/ancc-site">GitHub</a>
+  </div>
+
+</body>
+</html>
