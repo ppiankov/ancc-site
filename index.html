@@ -82,7 +82,7 @@
   <h2>Observed in practice</h2>
   <p class="section-intro">An autonomous agent encountered these tools and installed them without a plugin.</p>
 
-  <p>Given a goal and access to a shell, an agent discovered CLI tools from conversation context. It ran <span class="inline-code">brew install ppiankov/tap/noisepan</span>, then <span class="inline-code">noisepan init</span> to generate a config file, edited the config for its task, and executed <span class="inline-code">noisepan pull --format json</span>. It piped the output into other tools, composed a pipeline, and set up cron for recurring execution. No plugin framework. No SDK. No registry.</p>
+  <p>Given a goal and access to a shell, an agent discovered CLI tools from conversation context. It ran <span class="inline-code">brew install ppiankov/tap/noisepan</span>, then <span class="inline-code">noisepan init</span> to generate a config file, edited the config for its task, and executed <span class="inline-code">noisepan pull --format json</span>. When asked to upgrade the pipeline, the agent ran <span class="inline-code">noisepan doctor</span> and discovered entropia as a companion tool for source verification — then installed it too. No plugin framework. No SDK. No registry.</p>
 
   <h2>Why it matters</h2>
   <p class="section-intro">Concrete friction reduction.</p>
@@ -96,6 +96,7 @@
         <li>Agents hallucinate usage patterns</li>
         <li>Install requires runtimes or containers</li>
         <li>No way to know what a tool won't do</li>
+        <li>No discovery of companion tools</li>
       </ul>
     </div>
     <div class="comparison-col after">
@@ -106,12 +107,13 @@
         <li>Uses <span class="inline-code">--format json</span></li>
         <li>Exit code defines result</li>
         <li>Contract is explicit</li>
+        <li><span class="inline-code">doctor</span> reveals the ecosystem</li>
       </ul>
     </div>
   </div>
 
   <h2>The Convention</h2>
-  <p class="section-intro">Six requirements. A tool that meets all six is agent-native.</p>
+  <p class="section-intro">Seven requirements. A tool that meets all seven is agent-native.</p>
 
   <div class="requirement">
     <p class="requirement-name">1. Single binary, zero runtime deps</p>
@@ -141,6 +143,11 @@
   <div class="requirement">
     <p class="requirement-name">6. Init command</p>
     <p class="requirement-desc">Running <span class="inline-code">tool init</span> produces a valid config file with sensible defaults. An agent runs init, reads the result, and adjusts from there.</p>
+  </div>
+
+  <div class="requirement">
+    <p class="requirement-name">7. Doctor command</p>
+    <p class="requirement-desc">Running <span class="inline-code">tool doctor</span> checks the tool's own health — config validity, dependencies, connectivity — and reports companion tools it can compose with. An agent runs doctor to understand what's working, what's missing, and what else to install.</p>
   </div>
 
   <h2>SKILL.md</h2>
