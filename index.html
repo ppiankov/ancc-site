@@ -107,13 +107,13 @@
         <li>Uses <span class="inline-code">--format json</span></li>
         <li>Exit code defines result</li>
         <li>Contract is explicit</li>
-        <li><span class="inline-code">doctor</span> reveals the ecosystem</li>
+        <li><span class="inline-code">doctor</span> surfaces companion tools</li>
       </ul>
     </div>
   </div>
 
   <h2>The Convention</h2>
-  <p class="section-intro">Seven requirements. A tool that meets all seven is agent-native.</p>
+  <p class="section-intro">Six requirements. A tool that meets all six is agent-native.</p>
 
   <div class="requirement">
     <p class="requirement-name">1. Single binary, zero runtime deps</p>
@@ -145,10 +145,10 @@
     <p class="requirement-desc">Running <span class="inline-code">tool init</span> produces a valid config file with sensible defaults. An agent runs init, reads the result, and adjusts from there.</p>
   </div>
 
-  <div class="requirement">
-    <p class="requirement-name">7. Doctor command</p>
-    <p class="requirement-desc">Running <span class="inline-code">tool doctor</span> checks the tool's own health — config validity, dependencies, connectivity — and reports companion tools it can compose with. An agent runs doctor to understand what's working, what's missing, and what else to install.</p>
-  </div>
+  <h2>Recommended: Doctor command</h2>
+  <p class="section-intro">Not required, but powerful for tools that compose with others.</p>
+
+  <p>Running <span class="inline-code">tool doctor</span> checks the tool's own health — config validity, dependencies, connectivity — and surfaces companion tools it can compose with. An agent runs doctor to understand what's working, what's missing, and what else to install. Tools that operate in isolation don't need this. Tools that form pipelines benefit from it.</p>
 
   <h2>SKILL.md</h2>
   <p class="section-intro">The interface contract. Lives at the repo root.</p>
